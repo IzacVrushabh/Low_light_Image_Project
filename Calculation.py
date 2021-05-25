@@ -16,20 +16,20 @@ warnings.filterwarnings('ignore')
 
 
 
-imagenames_list = []
-csvName = "CUP"
+path_list = []
+# csvName = "B"
 
-folder='D:\Android_Projects\ExDarkImages\Cup'
+folder='D:\Android_Projects\ExDarkImages\Car'
 
 names_list = []
 for f in glob.glob(folder+'/*.jpg'):
     names_list.append(os.path.split(f)[-1])
-#print(names_list)s
+# print(names_list)
 
 for f in glob.glob(folder+'/*.jpg'):
-    imagenames_list.append(f)
+    path_list.append(f)
 
-#print(imagenames_list)
+# print(path_list)
 
 
 
@@ -38,40 +38,63 @@ read_images = []
 entropy_list = []
 
 
-for image in imagenames_list:
+for image in path_list:
     read_images.append(cv.imread(image))
 
 output_images = []
+output_image_name_list = []
+entropy_input = []
+# Bus - BBHE, BPHEME, BHEPL,  DSIHE, MMBEBHE,
+# Dog - BBHE, BPHEME, BHEPL
 for image in read_images:
+    entropy_input.append(skimage.measure.shannon_entropy(image))
     ie = image_enhancement.IE(image, color_space = 'HSV')
-    output_images.append(ie.BPHEME())
-    entropy_list.append(skimage.measure.shannon_entropy(image))
+    result = ie.RLBHE()
+    output_images.append(result)
+    # cv.imwrite(path + "Bicycle-"+str(i)+".jpg", result)
+    #
+    # output_image_name_list.append(path + "Bicycle-"+str(i)+".jpg")
+    # i += 1
 
-# PSNR list
-psnr_list = []
-for (ip,op) in zip(read_images,output_images):
-    psnr_list.append(metrics.peak_signal_noise_ratio(ip,op))
+# print(output_image_name_list)
 
+##### Entropy code...
+# for image in output_images:
+#     entropy_list.append(skimage.measure.shannon_entropy(image))
+# print("{:.3f}".format(np.array(entropy_input).mean()))
+#
+# print("{:.3f}".format(np.array(entropy_list).mean()))
 
-# brisque list
+# # PSNR list
+# psnr_list = []
+# for (ip,op) in zip(read_images,output_images):
+#     psnr_list.append(metrics.peak_signal_noise_ratio(ip,op))
+#
+#
+# # brisque list
 brisque_list = []
-for image in imagenames_list:
-    img = PIL.Image.open(image)
-    brisque_list.append(brisque.score(img))
+brisque_output = []
+# for image in path_list:
+#     img = PIL.Image.open(image)
+#     brisque_list.append(brisque.score(img))
+
+for image in output_images:
+    img = PIL.Image.fromarray(image)
+    brisque_output.append(brisque.score(img))
+
+print("{:.3f}".format(np.array(brisque_output).mean()))
 
 
 
-
-
-with open('BPHEME_'+ csvName +'.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(["SN", "Name", "Entropy", "BRISQUE", "PSNR"])
-
-    count = 0
-    for (names, ent, brsq, psn) in zip(names_list, entropy_list, brisque_list, psnr_list):
-
-        writer.writerow([count+1, names, ent, brsq, psn])
-        count = count+1
+# with open('BPHEME_'+ csvName +'.csv', 'w', newline='') as file:
+#     writer = csv.writer(file)
+#     writer.writerow(["SN", "Name", "Entropy", "BRISQUE", "PSNR"])
+#
+#     count = 0
+#     for (names, ent, brsq, psn) in zip(names_list, entropy_list, brisque_list, psnr_list):
+#
+#         writer.writerow([count+1, names, ent, brsq, psn])
+#         count = count+1
 
 
 
